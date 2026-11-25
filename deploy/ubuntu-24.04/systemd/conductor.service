@@ -1,0 +1,17 @@
+[Unit]
+Description=Conductor Discord bot (Docker Compose)
+Documentation=file://__WORKING_DIRECTORY__/deploy/ubuntu-24.04/README.md
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=__WORKING_DIRECTORY__
+ExecStart=/usr/bin/docker compose up -d --remove-orphans
+ExecStop=/usr/bin/docker compose stop
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

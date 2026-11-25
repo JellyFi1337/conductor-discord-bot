@@ -1,0 +1,8 @@
+# Этот блок скрипт setup-deploy-key.sh дописывает сам.
+# Нужен на Ubuntu, чтобы git pull ходил ключом сервера, а не паролем.
+
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/conductor_deploy
+  IdentitiesOnly yes

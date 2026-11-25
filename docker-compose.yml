@@ -1,0 +1,133 @@
+name: conductor
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+x-bot-environment: &bot-environment
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: ${POSTGRES_USER:-conductor}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  POSTGRES_DB: ${POSTGRES_DB:-conductor}
+  AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
+  TZ: ${TZ:-Europe/Moscow}
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8
+  PYTHONIOENCODING: utf-8
+  PYTHONUTF8: "1"
+
+x-bot-healthcheck: &bot-healthcheck
+  # Бот не слушает порт: живость показывает .heartbeat, его трогает планировщик
+  # раз в 30 с (services/heartbeat.py, STALE_SECONDS).
+  test:
+    - CMD
+    - python
+    - -c
+    - |
+      import os, sys, time
+      p = "/app/data/.heartbeat"
+      sys.exit(0 if os.path.exists(p) and time.time() - os.path.getmtime(p) < 120 else 1)
+  interval: 30s
+  timeout: 5s
+  retries: 3
+  start_period: 120s
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    init: true
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-conductor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-conductor}
+      TZ: ${TZ:-Europe/Moscow}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    logging: *default-logging
+    networks:
+      - conductor
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: conductor:local
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    env_file:
+      - .env
+    environment:
+      <<: *bot-environment
+    volumes:
+      # Каталог хоста, а не безымянный том: automod.yml правится обычным
+      # редактором, .command-hash и .heartbeat видно без docker cp.
+      - ./data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck: *bot-healthcheck
+    logging: *default-logging
+    networks:
+      - conductor
+
+  bot-test:
+    # Второй контейнер: свой файл .env.test с BOT_MODE=test|beta.
+    # Один процесс из .env запускает только режим BOT_MODE, не оба сразу.
+    profiles: ["test"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: conductor:local
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    env_file:
+      - .env.test
+    environment:
+      <<: *bot-environment
+    volumes:
+      - ./data-test:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck: *bot-healthcheck
+    logging: *default-logging
+    networks:
+      - conductor
+
+  adminer:
+    image: adminer:4
+    profiles: ["tools"]
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      TZ: ${TZ:-Europe/Moscow}
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    logging: *default-logging
+    networks:
+      - conductor
+
+volumes:
+  postgres_data:
+
+networks:
+  conductor:
+    driver: bridge

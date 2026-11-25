@@ -1,0 +1,11 @@
+[Unit]
+Description=Conductor Postgres dump
+Documentation=file://__WORKING_DIRECTORY__/deploy/ubuntu-24.04/README.md
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=__WORKING_DIRECTORY__
+ExecStart=__WORKING_DIRECTORY__/deploy/ubuntu-24.04/backup.sh
+Nice=10

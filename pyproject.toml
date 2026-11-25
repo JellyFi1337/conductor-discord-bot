@@ -1,0 +1,70 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "conductor"
+version = "0.9.0"
+description = "Discord bot for one community: onboarding, moderation, tickets, reputation, stats"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Conductor" }]
+dependencies = [
+    "discord.py[speed]>=2.7.1,<2.8",
+    "aiohttp>=3.9.0,<4",
+    "sqlalchemy[asyncio]>=2.0.43",
+    "alembic>=1.14.0",
+    "aiosqlite>=0.21.0",
+    "pydantic>=2.11.0",
+    "pydantic-settings>=2.11.0",
+    "structlog>=25.4.0",
+    "python-dotenv>=1.1.0",
+    "tzdata>=2024.1",
+    "pyyaml>=6",
+    "audioop-lts>=0.2.1; python_version>='3.13'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+    "ruff>=0.12.0",
+]
+postgres = [
+    "asyncpg>=0.30.0",
+]
+
+[project.scripts]
+conductor = "conductor.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/conductor"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/conductor", "README.md", "pyproject.toml", "alembic.ini"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = [
+    "error::DeprecationWarning:conductor",
+    "error::PendingDeprecationWarning:conductor",
+]
+markers = [
+    "real_migrations: run the full Alembic chain instead of replaying the cached head schema",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B018"]
+"src/conductor/db/migrations/versions/*" = ["E501", "I001", "UP007"]

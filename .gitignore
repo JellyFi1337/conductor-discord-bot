@@ -1,0 +1,26 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.env
+.env.test
+.env.beta
+data/*
+!data/permissions.yml.example
+!data/automod.yml.example
+!data/blueprint.example.json
+data-test/
+backups/
+*.db
+*.db-journal
+dist/
+build/
+.idea/workspace.xml
+.idea/shelf/
+
+# Локальные переопределения compose (например, DNS хоста)
+docker-compose.override.yml

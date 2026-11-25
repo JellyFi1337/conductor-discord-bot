@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns="http://www.w3.org/2005/Atom">
+  <title>Example Channel</title>
+  <entry>
+    <yt:videoId>vid00000005</yt:videoId>
+    <title>Newest short</title>
+    <link rel="alternate" href="https://www.youtube.com/shorts/vid00000005"/>
+    <published>2026-01-05T00:00:00+00:00</published>
+  </entry>
+  <entry>
+    <yt:videoId>vid00000004</yt:videoId>
+    <title>Fourth</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=vid00000004"/>
+    <published>2026-01-04T00:00:00+00:00</published>
+  </entry>
+  <entry>
+    <yt:videoId>vid00000003</yt:videoId>
+    <title>Third</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=vid00000003"/>
+    <published>2026-01-03T00:00:00+00:00</published>
+  </entry>
+  <entry>
+    <yt:videoId>vid00000002</yt:videoId>
+    <title>Second</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=vid00000002"/>
+    <published>2026-01-02T00:00:00+00:00</published>
+  </entry>
+  <entry>
+    <yt:videoId>vid00000001</yt:videoId>
+    <title>Oldest</title>
+    <link rel="alternate" href="https://www.youtube.com/watch?v=vid00000001"/>
+    <published>2026-01-01T00:00:00+00:00</published>
+  </entry>
+</feed>

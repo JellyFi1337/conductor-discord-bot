@@ -1,0 +1,31 @@
+window_minutes: 60          # окно счёта «в час»
+timeout_minutes: 10         # срок тайм-аута по умолчанию
+exempt:                     # глобальные исключения; rules.<имя>.exempt их ЗАМЕНЯЕТ, не дополняет
+  administrators: true      # Administrator обходит (13a), обход пишется в лог
+  ranks: [watcher, senior, chief, special]
+  roles: []                 # id ролей
+  channels: []              # id каналов; лог-каналов бота исключены всегда
+newcomer:
+  hours: 24                 # первые сутки на сервере — строже
+  factor: 0.5               # лимиты умножаются и округляются вверх: 10 → 5, 3 → 2, 1 → 1
+rules:
+  emoji_flood:   {limit: 10, action: timeout, delete: message}     # больше 10 эмодзи в окно
+  # чужие приглашения: свой сервер (vanity и кэш) не считается. action: off — выключить.
+  invite_link:
+    limit: 1
+    action: timeout
+    delete: message
+    timeout_minutes: 30
+    exempt: {administrators: true, ranks: [special], roles: [], channels: []}
+  # @everyone / @here по тексту, даже если Discord не пинганул. watcher/senior/chief не освобождены.
+  everyone_mention:
+    limit: 1
+    action: timeout
+    delete: message
+    timeout_minutes: 60
+    exempt: {administrators: true, ranks: [special], roles: [], channels: []}
+  duplicate:     {limit: 3, action: timeout, delete: duplicates}  # 3 одинаковых — удалить повторы
+  user_mentions: {limit: 5, action: timeout, delete: none}        # больше 5 упоминаний участников
+  role_mentions: {limit: 3, action: timeout, delete: none}        # больше 3 упоминаний ролей
+  gif_flood:     {limit: 5, action: timeout, delete: none}        # больше 5 гифок
+  # правило, которого нет в этом файле, берётся из встроенных умолчаний бота.

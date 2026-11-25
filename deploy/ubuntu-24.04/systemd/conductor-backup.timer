@@ -1,0 +1,10 @@
+[Unit]
+Description=Nightly Conductor Postgres dump
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+Persistent=true
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target
